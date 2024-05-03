@@ -5,8 +5,9 @@ import { Label } from "@/src/components/label";
 import { Input } from "@/src/components/input";
 import Image from "next/image";
 import { cn } from "@/utils/cn";
-import api from "@/src/config/api";
+import { api } from "@/src/config/api";
 import { Button } from "@nextui-org/button";
+import { useSession } from "next-auth/react";
 type Tab = {
 	title: string;
 	value: string;
@@ -26,28 +27,33 @@ const LabelInputContainer = ({
 	);
 };
 export default function SettingsPage() {
+	const { data: session, status } = useSession();
 	const handleSubmitWallet = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const formData = new FormData(e.currentTarget)
-        console.log();
-        var firstname = formData.get("firstname");
-        var lastname = formData.get("lastname");
-        var email = formData.get("email");
-        var password = formData.get("password");
-        const res = await api.post('signup', {
-            "user": {
-              "email": email,
-              "password": password,
-              "name": `${firstname} ${lastname}`
-          }
-        })
-        if (res.status == 200) {
-			
+		e.preventDefault();
+		const formData = new FormData(e.currentTarget)
+		var name = formData.get("name");
+		var description = formData.get("description");
+		var value = formData.get("value");
+		console.log({ name, description, value })
+		if (name?.length && name?.length > 0) {
+			const res = await api((session?.user?.token) ? session?.user?.token : "").post('api/wallets/create', {
+				"wallet": {
+					"name": name,
+					"description": description,
+					"amount": value
+				}
+			})
+			if (res.status == 200) {
+				alert("Wallet insertion was successful.")
+			}
+			else {
+				alert("Wallet insertion failed.")
+			}
 		}
-		else{
-			alert("Wallet insertion failed.")
+		else {
+			alert("Name Field is Empty")
 		}
-    };
+	};
 	const tabs: Tab[] = [
 		{
 			title: "Wallets",

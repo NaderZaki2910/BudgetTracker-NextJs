@@ -7,9 +7,9 @@ import { cn } from "@/utils/cn";
 import {
     IconBrandGithub,
     IconBrandGoogle,
-    IconBrandOnlyfans,
+    
 } from "@tabler/icons-react";
-import api from "../config/api";
+import { api } from "../config/api";
 const BottomGradient = () => {
     return (
         <>
@@ -38,12 +38,11 @@ export default function SignupModal() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget)
-        console.log();
         var firstname = formData.get("firstname");
         var lastname = formData.get("lastname");
         var email = formData.get("email");
         var password = formData.get("password");
-        const res = await api.post('signup', {
+        const res = await api("").post('api/signup', {
             "user": {
               "email": email,
               "password": password,

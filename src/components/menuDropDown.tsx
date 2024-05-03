@@ -20,9 +20,11 @@ export const MenuDropDown = ({
         case "logout":
           signOut();
           break;
+        case "profile":
+          console.log(session?.user);
+          break;
       }
     }
-    console.log(propTrigger)
     return (
         <Dropdown placement="bottom">
           <DropdownTrigger>

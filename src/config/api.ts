@@ -5,12 +5,14 @@ let urls = {
     development: 'http://localhost:3001/',
     production: 'https://your-production-url.com/'
 }
-const api = Axios.create({
+
+const api = (token: string) => {return Axios.create({
     baseURL: urls[process.env.NODE_ENV],
     headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
     }
-});
+})};
 
-export default api;
+export { api };

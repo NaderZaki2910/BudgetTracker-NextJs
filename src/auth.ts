@@ -1,16 +1,28 @@
-import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { siteConfig } from "./config/site";
-import api from "./config/api";
+import { api } from "./config/api";
 import { userAgent } from "next/server";
-
+import NextAuth from "next-auth"
+ 
 export const {
     handlers: { GET, POST },
     auth,
     signIn,
     signOut,
   } = NextAuth({
+    callbacks: {
+      jwt({ token, user }) {
+        if (user) { // User is available during sign-in
+          token.token = user.token
+        }
+        return token
+      },
+      session({ session, token }) {
+        session.user.token = token.token
+        return session
+      },
+    },
     providers: [
         CredentialsProvider({
             // The name to display on the sign in form (e.g. "Sign in with...")
@@ -25,15 +37,17 @@ export const {
             },
             async authorize(credentials, req) {
               try{
-                const res = await api.post('login', {
+                const res = await api("").post('api/login', {
                     "user": {
                       "email": credentials.email,
                       "password": credentials.password
                   }
                 });
-                if (res.status == 200) {
-                  // Any object returned will be saved in `user` property of the JWT
-                  return res.data["status"]["data"]["user"]
+                if (res.status == 200 && res.headers.hasAuthorization) {
+                  let token: string = res.headers["authorization"].toString();
+                  token = token.split(' ')[1].replace('"', '');
+                  res.data["status"]["data"]["user"]["token"] = token;
+                  return res.data["status"]["data"]["user"];
                 } else {
                   // If you return null then an error will be displayed advising the user to check their details.
                   throw Error('error type', { cause: { server_message: "Invalid" } });
@@ -42,7 +56,7 @@ export const {
                 }
               }
               catch(error){
-
+                console.log(error);
               }
               
             }
