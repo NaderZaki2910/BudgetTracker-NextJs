@@ -54,6 +54,58 @@ export default function SettingsPage() {
 			alert("Name Field is Empty")
 		}
 	};
+	const handleSubmitCategory = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		const formData = new FormData(e.currentTarget)
+		var name = formData.get("name");
+		var description = formData.get("description");
+		var value = formData.get("value");
+		console.log({ name, description, value })
+		if (name?.length && name?.length > 0) {
+			const res = await api((session?.user?.token) ? session?.user?.token : "").post('api/wallets/create', {
+				"wallet": {
+					"name": name,
+					"description": description,
+					"amount": value
+				}
+			})
+			if (res.status == 200) {
+				alert("Wallet insertion was successful.")
+			}
+			else {
+				alert("Wallet insertion failed.")
+			}
+		}
+		else {
+			alert("Name Field is Empty")
+		}
+	};
+	const handleSubmitIncomeSource = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		const formData = new FormData(e.currentTarget)
+		var name = formData.get("name");
+		var description = formData.get("description");
+		var value = formData.get("value");
+		console.log({ name, description, value })
+		if (name?.length && name?.length > 0) {
+			const res = await api((session?.user?.token) ? session?.user?.token : "").post('api/wallets/create', {
+				"wallet": {
+					"name": name,
+					"description": description,
+					"amount": value
+				}
+			})
+			if (res.status == 200) {
+				alert("Wallet insertion was successful.")
+			}
+			else {
+				alert("Wallet insertion failed.")
+			}
+		}
+		else {
+			alert("Name Field is Empty")
+		}
+	};
 	const tabs: Tab[] = [
 		{
 			title: "Wallets",

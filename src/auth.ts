@@ -4,7 +4,7 @@ import { siteConfig } from "./config/site";
 import { api } from "./config/api";
 import { userAgent } from "next/server";
 import NextAuth from "next-auth"
- 
+
 export const {
     handlers: { GET, POST },
     auth,
@@ -14,11 +14,13 @@ export const {
     callbacks: {
       jwt({ token, user }) {
         if (user) { // User is available during sign-in
+          console.log("user",user)
           token.token = user.token
         }
         return token
       },
       session({ session, token }) {
+        console.log("token", token)
         session.user.token = token.token
         return session
       },
@@ -45,6 +47,7 @@ export const {
                 });
                 if (res.status == 200 && res.headers.hasAuthorization) {
                   let token: string = res.headers["authorization"].toString();
+                  console.log("response", res.data["status"]["data"]["user"])
                   token = token.split(' ')[1].replace('"', '');
                   res.data["status"]["data"]["user"]["token"] = token;
                   return res.data["status"]["data"]["user"];

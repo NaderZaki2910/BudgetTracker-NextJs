@@ -8,11 +8,7 @@ import {
 	NavbarMenuItem,
 } from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
-import { Kbd } from "@nextui-org/kbd";
 import { Link } from "@nextui-org/link";
-import { Input } from "@nextui-org/input";
-import { Chip } from "@nextui-org/chip";
-import { User } from "@nextui-org/user";
 import { Avatar } from "@nextui-org/avatar";
 import { link as linkStyles } from "@nextui-org/theme";
 
@@ -21,33 +17,40 @@ import NextLink from "next/link";
 import clsx from "clsx";
 
 import { ThemeSwitch } from "@/src/components/theme-switch";
-import {
+import {} from "@/src/components/icons";
+import { Image } from "@nextui-org/react";
 
-} from "@/src/components/icons";
-
-import { Logo } from "@/src/components/icons";
-import { auth, signOut } from "../auth";
-import { UserDropDown } from "./userDropdown";
-import { ReactElement, JSXElementConstructor, ReactNode, PromiseLikeOfReactNode, Key } from "react";
+import { auth } from "../auth";
 import { UrlObject } from "url";
 import { MenuDropDown } from "./menuDropDown";
 import { DropdownTrigger } from "@nextui-org/react";
+import { api } from "../config/api";
 
 export const Navbar = async () => {
 	const session = await auth();
+	var image = "";
+	if (session && session.user) {
+		const res = await api((session.user?.token) ? session?.user?.token : "").get('api/user')
+		if (res.status == 200) {
+			image = res.data["image"]
+		}
+		else {
+			image = "";
+		}
+	}
 	const getDropDown = (children: { label: string; href: string | UrlObject; }[], trigger: JSX.Element) => {
 		const color: "primary" = "primary"
 		const items = children.map((child: { label: string; href: string | UrlObject; }) => (
 			{
 				content:
 					<NextLink
-					key={child.label}
-					className={clsx(
-						linkStyles({ color: "foreground" }),
-						"data-[active=true]:text-primary data-[active=true]:font-medium"
-					)}
-					color="foreground"
-					href={child.href}
+						key={child.label}
+						className={clsx(
+							linkStyles({ color: "foreground" }),
+							"data-[active=true]:text-primary data-[active=true]:font-medium"
+						)}
+						color="foreground"
+						href={child.href}
 					>
 						{child.label}
 					</NextLink>,
@@ -61,12 +64,14 @@ export const Navbar = async () => {
 		);
 	}
 	const userMenu = () => {
+
 		const primary: "primary" = "primary"
 		const danger: "danger" = "danger"
-		const items = [{
+		const items = [
+		{
 			key: "profile",
 			content: <><p className="font-semibold">Signed in as</p>
-			<p className="font-semibold">{session?.user?.name}</p></>,
+				<p className="font-semibold">{session?.user?.name}</p></>,
 			color: primary
 		},
 		{
@@ -81,8 +86,8 @@ export const Navbar = async () => {
 				className="transition-transform"
 				color="primary"
 				size="sm"
-				src={(session?.user?.image)?session?.user?.image:""}
-			  />}>
+				src={image}
+			/>}>
 			</MenuDropDown>
 		);
 	}
@@ -96,33 +101,33 @@ export const Navbar = async () => {
 				</NavbarBrand>
 				<ul className="hidden lg:flex gap-4 justify-start ml-2">
 					{session?.user ?
-					siteConfig.navItems.map((item) => (
-						(item.children)? 
-						getDropDown(item.children,<NavbarItem>
-							<DropdownTrigger>
-							  <Button
-								disableRipple
-								className="p-0 bg-transparent data-[hover=true]:bg-transparent"
-								radius="sm"
-								variant="light"
-							  >
-								{item.label}
-							  </Button>
-							</DropdownTrigger>
-						  </NavbarItem>)
-						:
-						<NavbarItem key={item.href}>
-							<NextLink
-								className={clsx(
-								linkStyles({ color: "foreground" }),
-								"data-[active=true]:text-primary data-[active=true]:font-medium")}
-								color="foreground"
-								href={item.href}
-							>
-								{item.label}
-							</NextLink>
-						</NavbarItem> 
-					)):<></>}
+						siteConfig.navItems.map((item) => (
+							(item.children) ?
+								getDropDown(item.children, <NavbarItem>
+									<DropdownTrigger>
+										<Button
+											disableRipple
+											className="p-0 bg-transparent data-[hover=true]:bg-transparent"
+											radius="sm"
+											variant="light"
+										>
+											{item.label}
+										</Button>
+									</DropdownTrigger>
+								</NavbarItem>)
+								:
+								<NavbarItem key={item.href}>
+									<NextLink
+										className={clsx(
+											linkStyles({ color: "foreground" }),
+											"data-[active=true]:text-primary data-[active=true]:font-medium")}
+										color="foreground"
+										href={item.href}
+									>
+										{item.label}
+									</NextLink>
+								</NavbarItem>
+						)) : <></>}
 				</ul>
 			</NavbarContent>
 
@@ -136,7 +141,7 @@ export const Navbar = async () => {
 				</NavbarItem>
 				{
 					session?.user ?
-					userMenu() : <></>
+						userMenu() : <></>
 				}
 				<NavbarItem className="hidden md:flex">
 					{
